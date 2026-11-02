@@ -1,0 +1,38 @@
+# Private device data, authentication, notes, screenshots and backups
+.local-tv/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# Downloaded dependencies, third-party audit checkouts and generated output
+node_modules/
+.tooling/node_modules/
+.tooling/store/
+.tooling/cache/
+audit/
+cache/
+artifacts/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Generated provider artwork: keep local, do not redistribute in Git
+personal-home/collections/assets/
+personal-home/cinema/*.jpg
+
+# Generated device catalog and feed snapshots; examples are tracked instead
+personal-home/config.js
+personal-home/cinema/feed.js
+personal-home/collections/feed.js
+personal-home/weather/feed.js
+personal-home/icons/*
+!personal-home/icons/amazon.png
+!personal-home/icons/com.apple.appletv.png
+!personal-home/icons/com.disney.disneyplus-prod.png
+!personal-home/icons/com.webos.app.browser.png
+!personal-home/icons/netflix.png
+!personal-home/icons/youtube.leanback.v4.png

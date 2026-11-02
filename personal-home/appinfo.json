@@ -1,0 +1,15 @@
+{
+  "id": "com.reza.tvhome",
+  "version": "0.3.3",
+  "vendor": "Personal",
+  "type": "web",
+  "main": "index.html",
+  "title": "Personal Home",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "resolution": "1920x1080",
+  "bgColor": "#111713",
+  "iconColor": "#26372b",
+  "disableBackHistoryAPI": true,
+  "handlesRelaunch": true
+}

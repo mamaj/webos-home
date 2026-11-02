@@ -1,0 +1,14 @@
+[Unit]
+Description=Refresh Home watching cache every fifteen minutes
+
+[Timer]
+OnBootSec=90
+OnUnitActiveSec=15min
+OnCalendar=*-*-* *:00,15,30,45:00
+Persistent=true
+WakeSystem=false
+AccuracySec=1min
+Unit=reza-cinema-refresh.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,25 @@
+#!/bin/sh
+# Reversible runtime service controls, reapplied by Homebrew at each boot.
+set -eu
+BASE=/var/lib/webosbrew/reza-privacy-v1
+[ ! -e "$BASE/disabled" ] || exit 0
+UNITS='voiceinput.service voiceconductor.service uploadd.service rdxd.service remotelogger.service remotediag.service'
+# uploadd is also dynamically executable by LS2, independently of systemd.
+# Overlay that executable in RAM with a no-op; the original flash file stays intact.
+if ! grep -q ' /usr/sbin/uploadd ' /proc/mounts; then
+  printf '#!/bin/sh\nexit 0\n' >/tmp/reza-upload-disabled
+  chmod 755 /tmp/reza-upload-disabled
+  mount --bind /tmp/reza-upload-disabled /usr/sbin/uploadd
+fi
+for unit in $UNITS; do systemctl mask --runtime "$unit"; done
+# On this firmware three vendor definitions live in /etc, which precedes /run.
+# An empty RAM overlay makes those definitions masked without changing flash.
+: >/tmp/reza-unit-disabled
+for unit in voiceinput.service uploadd.service remotediag.service; do
+  target="/etc/systemd/system/$unit"
+  if ! grep -q " $target " /proc/mounts; then
+    mount --bind /tmp/reza-unit-disabled "$target"
+  fi
+done
+systemctl daemon-reload
+systemctl --no-block stop $UNITS

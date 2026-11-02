@@ -1,0 +1,1 @@
+{"appId":"com.webos.app.home","type":"regular","allowedNames":["com.webos.app.home-*"],"trustLevel":"","permissions":[{"service":"com.webos.app.home-*","outbound":["com.webos.applicationManager","com.webos.service.applicationmanager"]}]}

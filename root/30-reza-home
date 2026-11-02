@@ -1,0 +1,48 @@
+#!/bin/sh
+# RAM-only Home overlay. Original LG application remains intact in flash.
+set -eu
+BASE=/var/lib/webosbrew/reza-home-v1
+DST=/usr/palm/applications/com.webos.app.home
+TMP=/tmp/reza-home-app
+[ ! -e "$BASE/disabled" ] || exit 0
+[ -f "$BASE/app/index.html" ] || exit 0
+# Give the replacement web page ordinary public app-launch access. Its role
+# can contact only applicationManager; it receives no root/settings privileges.
+for pair in 'home-role.json roles.d' 'home-client.json client-permissions.d' 'home-manifest.json manifests.d'; do
+  set -- $pair
+  target="/var/luna-service2-dev/$2/com.reza.home-integration.json"
+  if [ -e "$target" ]; then cmp -s "$BASE/$1" "$target"; else cp "$BASE/$1" "$target"; chmod 644 "$target"; fi
+done
+ls-control scan-services
+if ! grep -q " $DST " /proc/mounts; then
+  mkdir -p "$TMP"
+  cp -a "$BASE/app/." "$TMP/"
+  # The browser runs as an unprivileged account; only these public assets are
+  # exposed through the mount. Private backups and control files stay mode 700.
+  chmod 755 "$TMP"
+  find "$TMP" -type d -exec chmod 755 '{}' \;
+  find "$TMP" -type f -exec chmod 644 '{}' \;
+  /usr/bin/node -e 'var fs=require("fs"),p="/tmp/reza-home-app/",a=JSON.parse(fs.readFileSync(p+"appinfo.json","utf8"));a.id="com.webos.app.home";a.title="Home";a.visible=false;a.defaultWindowType="card";a.noSplashOnLaunch=true;delete a.handleScreenRemoteKey;a.lockable=false;fs.writeFileSync(p+"appinfo.json",JSON.stringify(a,null,2));fs.appendFileSync(p+"config.js","\nwindow.HOME_CONFIG.systemHome = true;\n");'
+  mount --bind "$TMP" "$DST"
+  if ! systemctl restart sam; then umount "$DST"; exit 1; fi
+  # C1's existing renderer caches the stock native Home; reload that cache too.
+  if ! systemctl restart webapp-mgr; then umount "$DST"; systemctl restart sam; exit 1; fi
+fi
+cp "$BASE/reza-home-control.service" /run/systemd/system/reza-home-control.service
+systemctl daemon-reload
+systemctl start reza-home-control.service
+# Metadata refresh is asynchronous. The UI always opens from its local cache.
+CINEMA=/var/lib/webosbrew/reza-cinema-v1
+if [ -f "$CINEMA/settings.json" ] && [ -f "$CINEMA/reza-cinema-refresh.timer" ]; then
+  cp "$CINEMA/reza-cinema-refresh.service" /run/systemd/system/reza-cinema-refresh.service
+  cp "$CINEMA/reza-cinema-refresh.timer" /run/systemd/system/reza-cinema-refresh.timer
+  systemctl daemon-reload
+  systemctl start reza-cinema-refresh.timer || true
+fi
+WEATHER=/var/lib/webosbrew/reza-weather-v1
+if [ -f "$WEATHER/reza-weather-refresh.timer" ]; then
+  cp "$WEATHER/reza-weather-refresh.service" /run/systemd/system/reza-weather-refresh.service
+  cp "$WEATHER/reza-weather-refresh.timer" /run/systemd/system/reza-weather-refresh.timer
+  systemctl daemon-reload
+  systemctl start reza-weather-refresh.timer || true
+fi

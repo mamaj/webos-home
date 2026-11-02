@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+pidfile=/var/run/reza-dropbear.pid
+if [ -s "$pidfile" ]; then
+    read -r daemon_pid <"$pidfile"
+    case "$daemon_pid" in
+        ''|*[!0-9]*) ;;
+        *)
+            if [ -r "/proc/$daemon_pid/comm" ] && [ "$(cat "/proc/$daemon_pid/comm")" = dropbear ]; then
+                tr '\000' '\n' <"/proc/$daemon_pid/cmdline" | grep -qx -- '-s'
+                exit $?
+            fi
+            ;;
+    esac
+fi
+mkdir -p /var/lib/webosbrew/sshd
+exec /media/developer/apps/usr/palm/services/org.webosbrew.hbchannel.service/bin/dropbear -R -s -P "$pidfile"

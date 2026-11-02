@@ -1,0 +1,5 @@
+{
+  "name": "personal-webos-packaging",
+  "private": true,
+  "devDependencies": { "@webos-tools/cli": "3.2.6" }
+}

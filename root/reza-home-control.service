@@ -1,0 +1,13 @@
+[Unit]
+Description=Personal Home remote and physical recovery
+After=ls-hubd.service sam.service
+
+[Service]
+Type=simple
+ExecStart=/bin/sh /var/lib/webosbrew/reza-home-v1/home-control.sh
+Restart=on-failure
+RestartSec=3
+StartLimitInterval=60
+StartLimitBurst=3
+StandardOutput=null
+StandardError=journal

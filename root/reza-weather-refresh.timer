@@ -1,0 +1,14 @@
+[Unit]
+Description=Refresh Toronto weather every 30 minutes
+
+[Timer]
+OnBootSec=60
+OnUnitActiveSec=30min
+OnCalendar=*-*-* *:00,30:00
+Persistent=true
+WakeSystem=false
+AccuracySec=1min
+Unit=reza-weather-refresh.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=Refresh private watching history and cinematic Home collections
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/node /var/lib/webosbrew/reza-cinema-v1/home-feed-refresh.js
+TimeoutStartSec=600
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=full
+PrivateDevices=true
+UMask=0077

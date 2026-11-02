@@ -1,0 +1,13 @@
+[Unit]
+Description=Refresh Toronto weather for Personal Home
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/node /var/lib/webosbrew/reza-weather-v1/refresh.js
+TimeoutStartSec=30
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=full
+PrivateDevices=true
+UMask=0022

@@ -1,0 +1,24 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
+const {NamaClient,NamaError,privateWrite,readJson}=require('./nama-client.cjs');
+const {sync,normalize}=require('./nama-sync.cjs');
+const dir=fs.mkdtempSync(path.join(os.tmpdir(),'nama-client-test-'));
+const provider={apiOrigin:'https://interface.30nama.com',applicationKey:'test-app-key',appVersion:'2.0.0',platform:'Website'};
+(async()=>{
+ const calls=[];let fail=false;
+ const transport=async(p,route,data,token)=>{calls.push({route,token});if(fail)throw new NamaError('network','Offline');if(token==='invalid')return{success:false,msg:'Invalid Data',result:null};return{success:true,result:route==='user'?{usertoken:'rotated-test-session-token',userid:100}:[]};};
+ const c=new NamaClient({privateDir:dir,provider,transport});c.saveSession({usertoken:'initial-test-session-token',userid:100});
+ assert.equal(fs.statSync(path.join(dir,'session.json')).mode&0o777,0o600);assert.equal(fs.statSync(dir).mode&0o777,0o700);
+ const fresh=new NamaClient({privateDir:dir,provider,transport});assert.equal(fresh.session().usertoken,'initial-test-session-token');await fresh.checkSession();await fresh.call('history');assert.equal(calls.at(-1).token,'rotated-test-session-token');
+ console.log('PASS Private storage, session reopening, and provider-issued token replacement');
+ await assert.rejects(c.call('profile',{}, {tokenOverride:'invalid'}),e=>e.code==='reconnect');
+ await assert.rejects(c.call('deleteHistory'),e=>e.code==='unsupported-action');await assert.rejects(c.call('poll',{code:'../../user'},{anonymous:true}),e=>e.code==='unsupported-action');
+ assert.throws(()=>new NamaClient({provider:{...provider,apiOrigin:'https://example.com'}}),e=>e.code==='configuration');
+ console.log('PASS Invalid-session response maps to reconnect; mutations and arbitrary hosts/routes are unavailable');
+ privateWrite(path.join(dir,'feed.json'),{items:[{id:1,title:'Last good item'}]});privateWrite(path.join(dir,'status.json'),{state:'connected',lastSuccessAt:'2026-11-01T00:00:00Z'});
+ const before=fs.readFileSync(path.join(dir,'feed.json'),'utf8');fail=true;await assert.rejects(sync({privateDir:dir,client:c,skipImages:true}));assert.equal(fs.readFileSync(path.join(dir,'feed.json'),'utf8'),before);assert.equal(readJson(path.join(dir,'status.json')).state,'unavailable');
+ const invalidClient={checkSession:async()=>{throw new NamaError('reconnect','Expired');}};await assert.rejects(sync({privateDir:dir,client:invalidClient,skipImages:true}));assert.equal(readJson(path.join(dir,'status.json')).state,'reconnect');assert.equal(fs.readFileSync(path.join(dir,'feed.json'),'utf8'),before);
+ console.log('PASS Network and expired-session failures preserve the cache with distinct status states');
+ const a=normalize({id:12,title:'Example 2025',usertoken:'must-never-leak',useremail:'private@example.com',image:{cover:'https://evil.example/track'},progress:'1000',time:'50',season:2,episode:3});assert.equal(a.imageUrl,null);assert.equal(a.progress,null);assert.ok(!JSON.stringify(a).includes('must-never-leak'));assert.ok(!JSON.stringify(a).includes('private@example.com'));
+ c.saveSession({usertoken:'different-account-test-token',userid:200});assert.equal(fs.existsSync(path.join(dir,'feed.json')),false);
+ console.log('PASS Public preview data excludes credentials; account switching clears the preceding account cache');
+})().catch(e=>{console.error(e);process.exitCode=1;}).finally(()=>fs.rmSync(dir,{recursive:true,force:true}));

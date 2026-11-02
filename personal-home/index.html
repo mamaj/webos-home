@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' file:; style-src 'self' file:; font-src 'self' file:; img-src 'self' file: data:; connect-src 'none'; media-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="viewport" content="width=1920, initial-scale=1">
+  <title>Personal Home</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="collections.css">
+</head>
+<body>
+  <div id="stage" class="home-page">
+    <div id="backdrop" aria-hidden="true"><img id="backdrop-a" alt=""><img id="backdrop-b" alt=""></div>
+    <div id="shade" aria-hidden="true"></div>
+    <header>
+      <nav class="tabs" aria-label="Home navigation">
+        <button data-page="favorites" class="nav-button active">Home</button>
+        <button data-page="apps" class="nav-button">All apps</button>
+        <button data-page="inputs" class="nav-button">Inputs</button>
+      </nav>
+      <div class="tools">
+        <button id="customize" class="tool-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16M8 4v6m8 4v6"/></svg><span>Customize</span></button>
+        <button id="settings" class="tool-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-.8 2.4-2.3 1L3.6 6l-1.5 2.6 1.7 1.8v2.7l-1.7 1.8L3.6 18l2.3-.4 2.3 1L9 21h3l.8-2.4 2.3-1 2.3.4 1.5-2.6-1.7-1.8v-2.7l1.7-1.8L17.4 6l-2.3.4-2.3-1L12 3Z"/><circle cx="10.5" cy="12" r="3"/></svg><span>TV settings</span></button>
+        <div class="time">
+          <strong id="clock"><span id="clock-value"></span><span id="clock-period"></span></strong><span id="date" hidden></span>
+          <div id="weather" role="img" aria-label="Toronto weather unavailable">
+            <svg id="weather-icon" viewBox="0 0 48 48" aria-hidden="true"></svg>
+            <span id="weather-temperature">—</span>
+            <span class="weather-meta"><span class="weather-city">Toronto</span><span id="weather-condition">Unavailable</span></span>
+          </div>
+        </div>
+      </div>
+    </header>
+    <section id="hero" aria-label="Featured popular title">
+      <p id="hero-kicker">POPULAR TODAY</p>
+      <h1 id="hero-title">Your next great watch.</h1>
+      <div id="hero-meta"></div>
+      <p id="hero-overview">Your favorite apps and inputs, with one selection of today's trending movies and shows.</p>
+      <button id="hero-details" class="hero-button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg>More details</button>
+    </section>
+    <main id="content" tabindex="-1">
+      <div class="intro"><p id="eyebrow" hidden></p><h1 id="heading">Your apps</h1><p id="subtitle"></p></div>
+      <section id="primary" aria-label="Apps and inputs"><div id="grid" class="grid scroll-row"></div></section>
+      <p id="empty" hidden>No apps here yet. Open All apps and hold OK on an app to add it.</p>
+    </main>
+    <section id="popular" aria-label="Popular movies and shows">
+      <div class="section-heading"><h2 id="popular-heading">Popular today</h2><span id="feed-caption">Movies &amp; shows · Trending worldwide</span></div>
+      <div id="popular-row" class="scroll-row"></div>
+      <p id="feed-empty" hidden>Recommendations are unavailable. Your apps and inputs are ready.</p>
+    </section>
+    <footer><button id="feed-info" class="footer-button">Trending from TMDB</button><span>Arrows to explore <i>·</i> OK to open <i>·</i> Hold OK to arrange apps</span></footer>
+    <div id="toast" role="status" aria-live="polite" hidden></div>
+    <div id="dialog-backdrop" hidden><section id="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><p id="dialog-label" class="dialog-label">PERSONAL HOME</p><h2 id="dialog-title"></h2><p id="dialog-copy"></p><div id="dialog-credit" hidden><img src="tmdb-logo.svg" alt="TMDB"><p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p></div><div id="dialog-actions"></div></section></div>
+    <div id="idle" hidden aria-label="Idle clock"><div id="idle-clock"></div></div>
+  </div>
+  <script src="config.js"></script>
+  <script src="cinema/feed.js"></script>
+  <script src="weather/feed.js"></script>
+  <script src="collections/feed.js"></script>
+  <script src="app.js"></script>
+  <script src="collections.js"></script>
+</body>
+</html>

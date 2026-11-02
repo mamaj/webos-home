@@ -1,0 +1,87 @@
+@font-face { font-family: 'Home Outfit'; src: url('fonts/outfit.ttf') format('truetype'); font-style: normal; font-weight: 100 900; font-display: swap; }
+body, button { font-family: 'Home Outfit', 'LG Smart UI', 'Segoe UI', Arial, sans-serif; font-weight: 450; }
+#hero-overview, #dialog-copy { font-weight: 400; }
+.content-feeds .section-heading h2, #heading, .poster-name, .watching-poster .poster-name { font-weight: 600; }
+#hero-meta, .hero-episode, .tile .caption { font-weight: 500; }
+.browse-scroll { position: absolute; z-index: 2; top: 578px; right: 0; bottom: 54px; left: 0; overflow: hidden; scrollbar-width: none; overscroll-behavior: contain; scroll-behavior: auto; }
+.browse-scroll::-webkit-scrollbar { display: none; }
+.browse-sheet { position: relative; width: 1920px; min-height: 1080px; margin-top: -578px; transform: translate3d(0,0,0); will-change: transform; transition: transform 180ms cubic-bezier(.2,.7,.2,1); }
+.scroll-row { scroll-behavior: auto; }
+.poster { transition: none; }
+.poster:focus { transform: none; }
+#backdrop img { will-change: opacity; transform: translateZ(0); transition: opacity .25s ease; }
+#shade { transform: translateZ(0); }
+.home-page #grid .tile { flex: 0 0 132px; margin-right: 12px; }
+.home-page #grid .tile:last-child { margin-right: 0; }
+.browser-artwork { display: block; }
+#hero-title { height: 132px; max-width: 760px; display: flex; align-items: center; font-size: 64px; line-height: 1.05; margin-bottom: 14px; }
+.hero-title-fallback { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.hero-logo { display: block; max-width: 620px; max-height: 120px; width: auto; height: auto; object-fit: contain; object-position: left center; }
+
+#hero-meta { margin-bottom: 10px; font-size: 18px; height: 30px; }
+#hero-meta span { margin-right: 16px; white-space: nowrap; }
+.hero-genres { color: #d4dce7; }
+.hero-certification { border: 1px solid #e0e9f44d; border-radius: 4px; padding: 3px 6px; color: #cbd5e1; font-size: 13px; line-height: 16px; }
+.hero-rating { background: #eac77b18; border-radius: 5px; padding: 4px 8px; color: #ecd294; font-size: 15px; line-height: 20px; }
+.hero-episode { min-height: 24px; height: 24px; margin: 0 0 10px; font-size: 17px; line-height: 24px; color: #b5cee5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 900px; }
+#hero-overview { font-size: 21px; line-height: 1.4; height: 59px; margin-bottom: 18px; }
+.hero-actions { display: flex; align-items: center; }
+.trailer-button { margin-left: 14px; padding: 13px 21px; border: 1px solid #f0f5ff55; background: #111a27a8; color: #e5edf5; font-size: 18px; font-weight: 400; }
+.trailer-button:focus { background: #293c51; }
+.content-feeds { position: absolute; top: 808px; left: 72px; right: 72px; }
+.content-feeds > section { margin-bottom: 20px; }
+.content-feeds > section:last-child { margin-bottom: 0; }
+.content-feeds #popular { position: relative; top: auto; left: auto; right: auto; }
+.content-feeds .section-heading h2 { font-size: 24px; font-weight: 500; margin: 0; }
+.content-feeds .section-heading { margin-bottom: 8px; }
+.row-caption { font-size: 16px; color: #939eae; }
+.secondary-page #watching { display: none; }
+.secondary-page .content-feeds { display: none; }
+.secondary-page .browse-scroll { top: 144px; overflow-y: hidden; }
+.secondary-page .browse-sheet { height: 1080px !important; margin-top: -144px; }
+.browse-scrolled footer::before { content: ''; position: absolute; z-index: -1; bottom: -24px; left: -76px; right: -76px; height: 90px; background: linear-gradient(#080b1000, #080b10fa 65%); pointer-events: none; }
+.watching-poster .poster-name { bottom: 33px; font-size: 20px; }
+.watching-time { position: absolute; z-index: 1; left: 15px; bottom: 13px; font-size: 13px; color: #c4d1df; }
+.watching-progress { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; height: 4px; background: #eff5ff36; }
+.watching-progress span { display: block; height: 100%; background: #c7e0f5; border-radius: 0 2px 2px 0; }
+.watching-empty { color: #a7b2c1; font-size: 20px; padding: 28px 0; }
+.preview-badge { position: absolute; z-index: 4; top: 19px; left: 650px; color: #a6b7ca; font-size: 12px; letter-spacing: 1.5px; opacity: .75; }
+
+/* Larger small text, preserving the established two-row viewing windows. */
+footer { display: none; }
+#hero-meta { font-size: 22px; height: 34px; min-height: 34px; }
+.hero-certification { font-size: 18px; line-height: 22px; padding: 3px 7px; }
+.hero-rating { font-size: 20px; line-height: 24px; padding: 4px 9px; }
+.hero-episode { font-size: 21px; height: 28px; min-height: 28px; line-height: 28px; }
+#hero-overview { font-size: 24px; line-height: 1.35; height: 65px; }
+.hero-button { font-size: 22px; }
+.trailer-button { font-size: 21px; }
+.content-feeds .section-heading h2 { font-size: 28px; line-height: 32px; }
+.content-feeds .section-heading { margin-bottom: 7px; }
+.content-feeds > section { margin-bottom: 16px; }
+.content-feeds > section:last-child { margin-bottom: 0; }
+.row-caption { font-size: 19px; line-height: 24px; }
+#heading { font-size: 28px; line-height: 32px; }
+.tile .caption { font-size: 20px; }
+.home-page .tile .caption { left: -6px; right: -6px; }
+.poster-name { font-size: 22px; line-height: 1.18; }
+.watching-poster .poster-name { bottom: 41px; font-size: 22px; }
+.watching-time { font-size: 18px; line-height: 22px; }
+.poster-kind { font-size: 15px; line-height: 18px; letter-spacing: .5px; padding: 4px 7px; }
+.content-feeds .section-heading h2 { font-weight: 600; letter-spacing: -.35px; }
+
+/* Match the two utility buttons to one common header row. */
+.tools { display: grid; grid-template-columns: auto auto 360px; grid-template-rows: 66px; column-gap: 12px; height: 66px; align-items: center; }
+.tools .tool-button { height: 54px; line-height: 24px; padding: 0 18px; margin: 0; justify-content: center; border: 1px solid #ffffff28; border-radius: 27px; background: #10151d80; }
+.tools .tool-button svg { flex: 0 0 22px; width: 22px; height: 22px; margin-right: 10px; }
+.tools .tool-button span { line-height: 24px; }
+.tools .tool-button:focus { background: #ffffff25; border-color: #ffffffb3; }
+.tools .time { align-self: start; margin-left: 24px; min-width: 336px; }
+
+/* Original artwork colours and a quieter, icons-only app strip. */
+.tile.has-icon .caption { display: none; }
+.tools .time strong { font-size: 64px; line-height: 68px; }
+#weather-icon { flex-basis: 52px; width: 52px; height: 52px; }
+#weather-temperature { font-size: 38px; line-height: 48px; }
+.weather-city { font-size: 14px; line-height: 20px; }
+#weather-condition { font-size: 24px; line-height: 30px; }
