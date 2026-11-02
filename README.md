@@ -6,6 +6,12 @@ App shortcuts, a fixed title hero, and smooth rows of things to watch—rendered
 
 Built and tested on an LG C1 running webOS 6. Current deployed version: **0.3.3**.
 
+![Personal Home with cinematic artwork, app shortcuts, and Popular today](docs/images/home.png)
+
+![Two visible discovery rows: Popular today and Apple TV, with a fixed Silo hero](docs/images/discovery-rows.png)
+
+*Browser captures of version 0.3.3 at 1920×1080, using public discovery content. The optional, unconfigured account row is hidden in this documentation demo; no personal watching history is shown.*
+
 ## The experience
 
 - **Your apps, up front.** Compact icons, a custom Browser icon, configurable favourites, and HDMI inputs.
