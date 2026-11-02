@@ -26,3 +26,9 @@ Root scripts include historical versions and migration-specific assumptions. The
 Recovery uses the installed fixed helper to restore LG Home or re-enable Personal Home. The two root-level Mac `.command` files invoke these existing helpers over pinned SSH. The latest deployment saved a TV-local backup before changing app files. Detailed device-specific recovery notes remain private under `.local-tv/notes/`.
 
 Rooting, service masking, and privacy settings need separate review for each firmware. On this already rooted C1, LG Developer Mode remains uninstalled as required by the selected root setup. The repository does not automatically reproduce that setup.
+
+## Reactivation state (0.3.4)
+
+webOS can deliver `webOSRelaunch` when bringing an existing Home renderer forward. The earlier handler rebuilt favourites and focused the first tile for every event, which could look like a delayed page reload. During diagnosis the Home renderer PID remained unchanged and the remote helper's last-launch file did not change during the physical test, so an additional helper launch was not observed.
+
+The handler now preserves the existing main Home grid, content row and valid focus during reactivation. From All apps or Inputs it still returns to favourites; an open dialog is dismissed and missing focus is restored. The remote watcher and its fallback timing are unchanged. Run `pnpm run test:relaunch` for the isolated handler regression checks. TV deployment uses `root/install-home-relaunch-fix.sh`, with prior app source and manifest retained in a TV-local backup.

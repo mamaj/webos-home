@@ -184,7 +184,22 @@
   });
   ['click', 'mousemove', 'wheel', 'mousedown'].forEach(function (name) { window.addEventListener(name, activity, {capture: true, passive: false}); });
   document.addEventListener('visibilitychange', function () { lastActivity = Date.now(); $('idle').hidden = true; clearTimeout(holdTimer); holdTimer = null; });
-  document.addEventListener('webOSRelaunch', function () { try { if (window.PalmSystem) window.PalmSystem.activate(); } catch (e) {} $('dialog-backdrop').hidden = true; activity(); setPage('favorites'); focus($('grid').querySelector('button')); });
+  function handleRelaunch() {
+    try { if (window.PalmSystem) window.PalmSystem.activate(); } catch (e) {}
+    activity();
+    // Native Home and the fallback may both request activation. Re-activating
+    // the existing Home page must preserve its tiles, selected row and focus.
+    if (page !== 'favorites') {
+      $('dialog-backdrop').hidden = true;
+      setPage('favorites');
+      focus($('grid').querySelector('button'));
+    } else if (!$('dialog-backdrop').hidden) {
+      closeDialog();
+    } else if (visibleButtons().indexOf(document.activeElement) < 0) {
+      focus($('grid').querySelector('button'));
+    }
+  }
+  document.addEventListener('webOSRelaunch', handleRelaunch);
   [].forEach.call(document.querySelectorAll('[data-page]'), function (b) { b.activate = function () { setPage(b.dataset.page); }; b.onclick = function (e) { if (e.detail !== 0 || Date.now() >= suppressClickUntil) b.activate(); }; });
   $('settings').activate = function () { launch('com.palm.app.settings'); }; $('settings').onclick = function (e) { if (e.detail !== 0 || Date.now() >= suppressClickUntil) $('settings').activate(); };
   $('customize').activate = customize; $('customize').onclick = function (e) { if (e.detail !== 0 || Date.now() >= suppressClickUntil) customize(); };

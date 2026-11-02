@@ -1,6 +1,6 @@
 # Launcher source
 
-Current version: **0.3.3**. See the [project README](../README.md) for features, build steps, and TV integration.
+Current version: **0.3.4**. See the [project README](../README.md) for features, build steps, and TV integration.
 
 `app.js` implements the core launcher. `collections.js` and `collections.css` implement the cinematic content experience. Fonts are local; their licences are included.
 

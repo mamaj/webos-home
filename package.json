@@ -1,6 +1,6 @@
 {
   "name": "personal-webos-home",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "private": true,
   "description": "A cinematic, locally rendered webOS Home launcher",
   "engines": {
@@ -11,7 +11,8 @@
     "build": "node tools/bootstrap.cjs && node tools/build-home.cjs",
     "check:package": "python3 tools/check-package.py",
     "check:privacy": "python3 tools/check-repository.py",
-    "test:connector": "node tools/test-nama-client.cjs"
+    "test:connector": "node tools/test-nama-client.cjs",
+    "test:relaunch": "node tools/test-home-relaunch.cjs"
   },
   "devDependencies": {
     "sharp": "0.35.5"

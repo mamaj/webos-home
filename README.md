@@ -4,7 +4,7 @@
 
 App shortcuts, a fixed title hero, and smooth rows of things to watch—rendered locally, with your TV remote.
 
-Built and tested on an LG C1 running webOS 6. Current deployed version: **0.3.3**.
+Built and tested on an LG C1 running webOS 6. Current deployed version: **0.3.4**.
 
 ![Personal Home with cinematic artwork, app shortcuts, and Popular today](docs/images/home.png)
 
