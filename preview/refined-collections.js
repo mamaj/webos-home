@@ -97,6 +97,73 @@
     if(watching){b.appendChild(home.element('span','watching-time',item.seconds!==null?time(item.seconds)+' watched':'Ready to watch'));if(item.progress!==null){var track=home.element('span','watching-progress'),bar=home.element('span');bar.style.width=Math.max(0,Math.min(100,item.progress))+'%';track.appendChild(bar);b.appendChild(track);}}
     b.addEventListener('focus',function(){queueFeature(item,watching,rowTitle);});return b;
   }
+  var pairingState=null,pairingTimer=null,pairingView=null,pairingGeneration=0,pairingStarting=false;
+  function connectionRequest(action,args){
+    return fetch('connection/'+action,{method:'POST',credentials:'omit',headers:{'Content-Type':'application/json','X-Personal-Home':'1'},body:JSON.stringify(args||{})}).then(function(r){return r.json().then(function(value){if(!r.ok)throw new Error(value.message||'Connection unavailable.');return value;});});
+  }
+  function cleanPairing(){
+    pairingGeneration++;clearTimeout(pairingTimer);pairingTimer=null;
+    if(pairingState)connectionRequest('cancel',{pairingId:pairingState.pairingId}).catch(function(){});
+    pairingState=null;if(pairingView)pairingView.remove();pairingView=null;$('dialog').classList.remove('nama-connect-dialog');
+  }
+  function connectNama(){
+    cleanPairing();
+    if(location.protocol==='file:'||!window.HOME_CONFIG.previewConnection){home.dialog('Connect 30nama','Open the live localhost preview to connect your account. The standalone HTML file cannot create a device-login code.',[]);return;}
+    home.dialog('Connect 30nama','Scan with your phone, then approve this device on 30nama. Your password stays on 30nama.',[{label:'Generate a new code',run:startPairing}]);
+    $('dialog').classList.add('nama-connect-dialog');
+    pairingView=home.element('div','nama-pairing');pairingView.id='nama-pairing';pairingView.setAttribute('aria-live','polite');$('dialog-actions').parentNode.insertBefore(pairingView,$('dialog-actions'));
+    startPairing();
+  }
+  function startPairing(){
+    if(!pairingView)return;
+    if(pairingStarting){pairingTimer=setTimeout(startPairing,250);return;}pairingStarting=true;
+    var generation=++pairingGeneration;clearTimeout(pairingTimer);
+    if(pairingState)connectionRequest('cancel',{pairingId:pairingState.pairingId}).catch(function(){});
+    pairingState=null;if(!pairingView)return;
+    pairingView.textContent='Creating your secure sign-in code…';
+    connectionRequest('start').then(function(result){
+      if(generation!==pairingGeneration){connectionRequest('cancel',{pairingId:result.pairingId}).catch(function(){});return;}
+      pairingState=result;pairingView.textContent='';
+      var image=home.element('img','nama-qr');image.alt='Scan to connect your 30nama account';image.src=result.qr;pairingView.appendChild(image);
+      var info=home.element('div','nama-pairing-info'),step=home.element('p','nama-pairing-step','1. Scan the QR code with your phone.');info.appendChild(step);
+      info.appendChild(home.element('p','nama-pairing-step','2. Sign in and select Activate (فعال سازی).'));
+      info.appendChild(home.element('p','nama-pairing-code',result.code));
+      info.appendChild(home.element('p','nama-pairing-hint','This connection window closes in 10 minutes.'));
+      var status=home.element('p','nama-pairing-status','Waiting for approval…');status.id='nama-pairing-status';info.appendChild(status);pairingView.appendChild(info);
+      pairingTimer=setTimeout(function(){pollConnection(generation);},3500);
+    }).catch(function(error){if(generation!==pairingGeneration||!pairingView)return;pairingView.textContent=error.message;}).then(function(){pairingStarting=false;});
+  }
+  function pollConnection(generation){
+    if(generation!==pairingGeneration||!pairingState||$('dialog-backdrop').hidden)return;
+    if(Date.now()>=pairingState.expiresAt){$('nama-pairing-status').textContent='Code expired. Generate a new code to continue.';return;}
+    connectionRequest('poll',{pairingId:pairingState.pairingId}).then(function(result){
+      if(generation!==pairingGeneration)return;
+      if(result.connected){pairingState=null;pairingView.textContent='Connected. Your watching list is refreshing…';home.toast('30nama connected');waitForWatchingList(generation,Date.parse(result.refreshAfter)||Date.now());return;}
+      pairingTimer=setTimeout(function(){pollConnection(generation);},3500);
+    }).catch(function(error){
+      if(generation!==pairingGeneration||!pairingView)return;
+      var status=$('nama-pairing-status');if(status)status.textContent=error.message;
+      // Keep transient provider/network errors retryable; expiry remains bounded.
+      pairingTimer=setTimeout(function(){pollConnection(generation);},7000);
+    });
+  }
+  function waitForWatchingList(generation,startedAt){
+    if(generation!==pairingGeneration||!pairingView)return;
+    refreshSnapshot();
+    pairingTimer=setTimeout(function(){
+      if(generation!==pairingGeneration||!pairingView)return;
+      var latest=window.HOME_DATA||{},state=latest.status&&latest.status.state;
+      if(Date.parse(latest.updatedAt)>=startedAt&&state==='connected'){
+        pairingView.textContent='Connected. '+((latest.feed||{}).items||[]).length+' titles are ready in your watching list.';
+        $('dialog-actions').firstChild.textContent='Connect another account';home.focus($('dialog-actions').lastChild);return;
+      }
+      if(Date.now()-startedAt>120000||state==='unavailable'||state==='reconnect'){
+        pairingView.textContent='Signed in. Your watching list is not available yet; the preview will keep trying in the background.';return;
+      }
+      waitForWatchingList(generation,startedAt);
+    },2000);
+  }
+  new MutationObserver(function(){if(pairingView&&($('dialog-backdrop').hidden||$('dialog-title').textContent!=='Connect 30nama'))cleanPairing();}).observe($('dialog-backdrop'),{attributes:true,attributeFilter:['hidden'],subtree:true,childList:true});
   function drawRows(preserve){
     var active=document.activeElement&&document.activeElement.id,oldTitle=$('hero-title').getAttribute('data-feature-key');
     feed=data.feed||{items:[]};enrichment=data.enrichment||{};watching.textContent='';
@@ -107,6 +174,10 @@
     var row=home.element('div','scroll-row');row.id='watching-row';watching.appendChild(row);
     (feed.items||[]).forEach(function(item){row.appendChild(card(item,true,'watching','30nama continue watching'));});
     if(!(feed.items||[]).length)watching.appendChild(home.element('p','watching-empty',data.status&&data.status.state==='connected'?'No titles in your 30nama watching list yet.':'Connect 30nama to see your watching list.'));
+    if(window.HOME_CONFIG&&window.HOME_CONFIG.preview){
+      var connect=home.button('Connect 30nama','nama-connect-button',connectNama);connect.id='connect-nama';
+      if((feed.items||[]).length)heading.appendChild(connect);else row.appendChild(connect);
+    }
     titleRows.forEach(function(s){s.remove();});titleRows=[];$('popular').hidden=true;
     (data.rows||[]).forEach(function(collection){
       var section=home.element('section','feed-section'),h=home.element('div','section-heading'),t=home.element('h2','',collection.title),c=home.element('span','row-caption',collection.caption),r=home.element('div','scroll-row');
@@ -211,7 +282,12 @@
   window.HOME_ABOUT=function(){home.dialog('About your content rows','Popular today uses worldwide daily trending titles from TMDB. Apple TV, HBO, and Netflix prioritise series with episodes or premieres in the past year, ranked by TMDB popularity, with catalogue favourites filling any gaps. These are our selections, not official streaming charts. A24 combines TMDB company credits with selected verified catalogue titles, with a modest boost for recent releases; it is not an exhaustive A24 catalogue.\n\nGeneral collections refresh about every six hours. Logos, artwork, cast and trailers come from TMDB. Displayed ratings come from IMDb’s official daily non-commercial dataset, matched by IMDb ID. An em dash means an IMDb rating is unavailable; a TMDB score is never substituted. The separate 30nama row reads your approved account; title and current episode identifiers are sent to TMDB for enrichment, without account credentials or playback progress. Cached rows work offline. A matched 30nama link opens the TV browser; unmatched titles use search. Playback and browser sign-in depend on 30nama.',[]);$('dialog-credit').hidden=false;};
   if(window.HOME_CONFIG&&window.HOME_CONFIG.preview){document.title='Personal Home — Outfit';var badge=home.element('div','preview-badge','MAC PREVIEW · OUTFIT');stage.appendChild(badge);}
   var refreshing=false;
-  function applySnapshot(){var next=window.HOME_DATA;if(!next||next.updatedAt===data.updatedAt||!$('dialog-backdrop').hidden)return;data=next;drawRows(true);}
+  function applySnapshot(){var next=window.HOME_DATA;if(!next||next.updatedAt===data.updatedAt||!$('dialog-backdrop').hidden)return;data=next;drawRows(true);
+    if(source==='continue'&&selected){
+      var current=(feed.items||[]).filter(function(item){return item.id===selected.id;})[0];
+      if(current)showWatching(current);else if(feed.items&&feed.items[0])showWatching(feed.items[0]);else if(data.rows&&data.rows[0]&&data.rows[0].items[0])featureTitle(data.rows[0].items[0],data.rows[0].title);
+    }
+  }
   function refreshSnapshot(){if(document.visibilityState!=='visible'||refreshing)return;refreshing=true;var script=document.createElement('script');script.src='collections/feed.js?v='+Date.now();script.onload=function(){refreshing=false;script.remove();applySnapshot();};script.onerror=function(){refreshing=false;script.remove();};document.head.appendChild(script);}
   new MutationObserver(function(){if($('dialog-backdrop').hidden)applySnapshot();}).observe($('dialog-backdrop'),{attributes:true,attributeFilter:['hidden']});
   setInterval(refreshSnapshot,60000);document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')refreshSnapshot();});

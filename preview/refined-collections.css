@@ -85,3 +85,17 @@ footer { display: none; }
 #weather-temperature { font-size: 38px; line-height: 48px; }
 .weather-city { font-size: 14px; line-height: 20px; }
 #weather-condition { font-size: 24px; line-height: 30px; }
+
+/* Preview device sign-in: the QR is generated locally from a provider URL. */
+.nama-connect-button { border:1px solid #b3d6f06b; border-radius:14px; padding:14px 22px; color:#eaf5ff; background:#182b40; font-size:22px; font-weight:500; }
+.section-heading .nama-connect-button { margin-left:18px; padding:7px 16px; font-size:18px; }
+.nama-connect-button:focus { outline:3px solid white; outline-offset:3px; background:#29445f; }
+#watching-row > .nama-connect-button { margin:10px 8px; min-width:320px; min-height:76px; }
+#dialog.nama-connect-dialog { width:1000px; padding:46px; }
+.nama-pairing { display:flex; gap:36px; align-items:center; min-height:320px; margin:28px 0; font-size:24px; color:#d8e4ef; }
+.nama-qr { width:320px; height:320px; flex:0 0 320px; border-radius:16px; background:white; }
+.nama-pairing-info { flex:1; min-width:0; }
+.nama-pairing-step { font-size:24px; line-height:1.4; margin:0 0 16px; }
+.nama-pairing-code { font-size:32px; letter-spacing:3px; color:white; overflow-wrap:anywhere; margin:18px 0; }
+.nama-pairing-hint { font-size:18px; color:#9dacbf; }
+.nama-pairing-status { font-size:21px; color:#9fd4f8; margin-top:24px; }

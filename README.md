@@ -55,7 +55,7 @@ For a simple layout preview after setup:
 python3 -m http.server 8080 --bind 127.0.0.1 --directory personal-home
 ```
 
-Open [the local preview](http://127.0.0.1:8080). The authenticated design preview in `tools/nama-preview.cjs` additionally needs private connector/runtime caches; it is intended for an already configured development machine.
+Open [the local preview](http://127.0.0.1:8080). The authenticated design preview in `tools/nama-preview.cjs` additionally needs private connector/runtime caches; it is intended for an already configured development machine. Its **Connect 30nama** button shows a locally generated QR code for phone approval and refreshes the watching row after sign-in. This connection UI is preview-only; it has not yet been deployed to the TV.
 
 ## TV integration
 

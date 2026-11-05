@@ -48,6 +48,8 @@ class NamaClient {
     const token = tokenOverride !== undefined ? tokenOverride : anonymous ? null : saved?.usertoken;
     if (!anonymous && !token) throw new NamaError('reconnect', 'Connect your 30nama account.');
     const response = await this.transport(this.provider, route, action==='search' ? {query:String(args.query || '').slice(0,160)} : {}, token);
+    // Observed device-login waiting response: no message and no result.
+    if(action==='poll'&&response.success===false&&(response.msg==null||response.msg==='null')&&response.message==null&&(response.result==null||Array.isArray(response.result)&&response.result.length===0))return null;
     if (response.success !== true) {
       const text = JSON.stringify(response);
       const code = /REQUESTCAPTCHA|REQUESTBLOCK/i.test(text) ? 'browser-required' : /token|login|session|unauth|ورود|احراز|نشست/i.test(text) || (['profile','history'].includes(action) && /Invalid Data/i.test(text)) ? 'reconnect' : /آخرین نسخه|update|version/i.test(text) ? 'provider-update' : 'provider-error';
@@ -67,7 +69,10 @@ class NamaClient {
     const pending = readJson(path.join(this.dir,'pending.json'));
     if (!pending || Date.now()-Date.parse(pending.createdAt)>10*60000) throw new NamaError('expired-pairing','Start a new account connection.');
     const result = await this.call('poll',{code:pending.code},{anonymous:true});
-    if (result && typeof result.usertoken==='string') {this.saveSession(result); fs.rmSync(path.join(this.dir,'pending.json'),{force:true}); return {connected:true};}
+    if (result && typeof result.usertoken==='string') {
+      const current=readJson(path.join(this.dir,'pending.json'));
+      if(!current||current.code!==pending.code)throw new NamaError('expired-pairing','This connection was cancelled or replaced.');
+      this.saveSession(result); fs.rmSync(path.join(this.dir,'pending.json'),{force:true}); return {connected:true};}
     return {connected:false};
   }
   async checkSession() {
