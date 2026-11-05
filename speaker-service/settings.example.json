@@ -1,0 +1,12 @@
+{
+  "udn": "uuid:REPLACE_WITH_SPEAKER_UDN",
+  "host": "",
+  "port": 49152,
+  "enabled": false,
+  "softMuteVolume": null,
+  "controlToken": "GENERATE_32_RANDOM_BYTES_AS_64_HEX",
+  "keyFilterSha256": "SHA256_OF_PRISTINE_SYSTEMUI_JS",
+  "appLaunchSha256": "SHA256_OF_PRISTINE_APPLAUNCH_JS",
+  "qpaSha256": "SHA256_OF_SUPPORTED_PRISTINE_QPA_PLUGIN",
+  "qpaPatchedSha256": "SHA256_OF_LOCALLY_GENERATED_QPA_OVERLAY"
+}

@@ -72,6 +72,10 @@ Alternatively, put `{"host":"your-tv-hostname"}` in `.local-tv/device.json`. Key
 
 The Mac recovery shortcuts are **Restore LG Home.command** and **Enable Personal Home.command**. Keep backups and a working maintenance connection before changing system Home. See [architecture and recovery](docs/ARCHITECTURE.md).
 
+## Edifier speaker controls
+
+The optional C1 root integration gives Volume +/− and Mute control of an Edifier S1000W in any app or HDMI input. Hold Mute about two seconds and release to switch between Edifier and LG controls. It includes a passive volume overlay, identity-based network discovery and Mac recovery shortcuts. See [setup scope, firmware requirements and recovery](docs/SPEAKER-CONTROL.md).
+
 ## Privacy and data
 
 The repository excludes tokens, account sessions, SSH keys, device inventories, personal watching feeds, screenshots, and private setup notes. See [the privacy guide](docs/PRIVACY.md) before sharing a copy of the working directory.

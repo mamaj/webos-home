@@ -1,0 +1,19 @@
+[Unit]
+Description=Edifier volume control and remote audio keys
+After=ls-hubd.service sam.service network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/sh /var/lib/webosbrew/reza-speaker-v1/run.sh
+Restart=on-failure
+RestartSec=3
+StartLimitInterval=60
+StartLimitBurst=3
+KillMode=control-group
+NoNewPrivileges=true
+ProtectHome=true
+ProtectSystem=full
+PrivateDevices=true
+UMask=0077
+StandardOutput=null
+StandardError=journal

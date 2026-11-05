@@ -1,0 +1,5 @@
+#!/bin/sh
+BASE=/var/lib/webosbrew/reza-speaker-v1
+[ -f "$BASE/startup.sh" ] || exit 0
+[ ! -e "$BASE/disabled" ] || exit 0
+sh "$BASE/startup.sh" >"$BASE/startup.log" 2>&1 || true

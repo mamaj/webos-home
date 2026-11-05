@@ -8,7 +8,7 @@ def git(*args):
     return subprocess.check_output(['git', *args], cwd=root)
 
 known = set()
-secret_keys = {'tmdbtoken', 'usertoken', 'passphrase', 'clientkey', 'apikey', 'access_token', 'refresh_token', 'password'}
+secret_keys = {'tmdbtoken', 'usertoken', 'passphrase', 'clientkey', 'apikey', 'access_token', 'refresh_token', 'password', 'controltoken'}
 def inspect_json(value):
     if isinstance(value, dict):
         for key, item in value.items():
