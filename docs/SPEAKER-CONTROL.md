@@ -13,7 +13,7 @@ A passive overlay confirms mode changes and shows the speaker's reported volume 
 
 ## Source picker
 
-With Edifier control on, **hold Yellow about 1½ seconds and release** to open the source menu. Short Yellow presses are forwarded to the underlying app. Use Up/Down (or Left/Right) to browse and OK to apply. The header always shows the applied source; browsing changes only the focused row. OK closes after the speaker confirms the new source. Back cancels without switching. Home closes the picker and keeps its usual behaviour. An idle picker closes after 30 seconds.
+With Edifier control on, **hold Yellow about 1½ seconds and release** to open the source menu. Short Yellow presses are forwarded to the underlying app. Use Up/Down (or Left/Right) to browse and OK to apply. The header always shows the applied source; browsing moves the white highlight between rows. A checkmark identifies the applied source. The picker uses the same 70%-opaque background as the volume bar, with larger option labels/icons and extra spacing beneath the title. OK closes after the speaker confirms the new source. Back cancels without switching. Home closes the picker and keeps its usual behaviour. An idle picker closes after 30 seconds.
 
 The menu remains independent of the foreground app. Root key filtering owns navigation only while the picker is open and consumes the corresponding release events. The overlay stays passive and the remote arrows return to the app after it closes. Source selection is remote-operated; the current overlay does not receive pointer clicks.
 
