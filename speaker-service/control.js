@@ -5,7 +5,7 @@ Control.prototype.emit=function(){this.publish(this.snapshot());};
 Control.prototype.stopHold=function(){clearTimeout(this.firstRepeat);clearInterval(this.repeat);this.firstRepeat=null;this.repeat=null;this.held=null;};
 Control.prototype.failed=function(){this.available=false;this.pending=0;this.mutePending=false;this.stopHold();this.device.verified=false;this.emit();};
 Control.prototype.rememberMute=function(n){this.persistMute(n);this.restoreVolume=n;};
-Control.prototype.update=function(s){if(this.restoreVolume!==null&&s.volume!==0)this.rememberMute(null);this.mute=this.restoreVolume!==null&&s.volume===0;this.volume=this.mute?this.restoreVolume:s.volume;this.input=s.input;this.available=true;this.emit();};
+Control.prototype.update=function(s){if(this.restoreVolume!==null&&s.volume!==0)this.rememberMute(null);this.mute=this.restoreVolume!==null&&s.volume===0;this.volume=this.mute?this.restoreVolume:s.volume;this.input=s.input;this.inputId=s.inputId||null;this.available=true;this.emit();};
 Control.prototype.flush=function(){if(!this.enabled||!this.available)return;if(this.mutePending){this.mutePending=false;this.toggleMute(true);}else if(this.pending)this.drain();};
 Control.prototype.refresh=async function(){if(this.busy)return;this.busy=true;try{this.update(await this.device.status());}catch(e){this.failed();}finally{this.busy=false;this.flush();}};
 Control.prototype.toggle=function(){if(this.now()-this.lastToggle<500)return;this.lastToggle=this.now();var value=!this.enabled;this.persist(value);this.enabled=value;this.pending=0;this.mutePending=false;this.stopHold();this.emit();this.notify({message:value?(this.available?'Edifier control on':'Edifier unavailable — LG controls active'):'LG volume controls restored'});};

@@ -14,7 +14,7 @@
     "test:connector": "node tools/test-nama-client.cjs",
     "test:relaunch": "node tools/test-home-relaunch.cjs",
     "test:pairing": "node tools/test-preview-pairing.cjs",
-    "test:speaker": "node tools/speaker/test-control.cjs"
+    "test:speaker": "node tools/speaker/test-control.cjs && node tools/speaker/test-picker.cjs"
   },
   "devDependencies": {
     "qrcode": "1.5.4",

@@ -1,9 +1,19 @@
 {
- "id":"com.reza.speakerosd","version":"0.1.0","vendor":"Personal",
- "type":"web","main":"index.html","title":"Speaker volume",
- "icon":"icon.png","visible":false,"transparent":true,
- "defaultWindowType":"floating","handlesRelaunch":true,
- "noSplashOnLaunch":true,"spinnerOnLaunch":false,
- "disableBackHistoryAPI":true,"supportTouchMode":"none",
- "requiredACG":[],"resolution":"1920x1080"
+  "id": "com.reza.speakerosd",
+  "version": "0.2.1",
+  "vendor": "Personal",
+  "type": "web",
+  "main": "index.html",
+  "title": "Edifier controls",
+  "icon": "icon.png",
+  "visible": false,
+  "transparent": true,
+  "defaultWindowType": "floating",
+  "handlesRelaunch": true,
+  "noSplashOnLaunch": true,
+  "spinnerOnLaunch": false,
+  "disableBackHistoryAPI": true,
+  "supportTouchMode": "none",
+  "requiredACG": [],
+  "resolution": "1920x1080"
 }

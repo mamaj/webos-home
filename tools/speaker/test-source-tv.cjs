@@ -1,0 +1,18 @@
+// TV-only bounded source-picker round trip. Restores source, volume and mode.
+'use strict';
+var fs=require('fs'),http=require('http'),cp=require('child_process'),BASE='/var/lib/webosbrew/reza-speaker-v1',cfg=JSON.parse(fs.readFileSync(BASE+'/settings.json')),Device=require(BASE+'/device.js').Device,device=new Device(cfg);
+function wait(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function api(route,data){return new Promise(function(resolve,reject){var body=data?JSON.stringify(data):'',req=http.request({host:'127.0.0.1',port:41273,path:'/'+route,method:data?'POST':'GET',headers:{'X-Speaker-Control':cfg.controlToken,'Content-Type':'application/json','Content-Length':Buffer.byteLength(body)}},function(res){var out='';res.on('data',function(b){out+=b;});res.on('end',function(){try{if(res.statusCode!==200)throw Error('Control API '+res.statusCode);resolve(JSON.parse(out));}catch(e){reject(e);}});});req.setTimeout(3500,function(){req.destroy(Error('Control timeout'));});req.on('error',reject);req.end(body);});}
+function key(k){return api('key',{key:k,pressed:true});}
+function inject(code,hold){cp.execFileSync('/usr/bin/python2.7',[BASE+'/inject-picker-test.py',String(code),String(hold||80)],{timeout:5000});}
+function check(x,message){if(!x)throw Error(message);}
+async function until(test){var end=Date.now()+7000;while(Date.now()<end){if(await test())return;await wait(200);}throw Error('Timed out waiting for picker state');}
+function foreground(){var command='/usr/bin/luna-send -n 1 -w 5000 luna://com.webos.applicationManager/getForegroundAppInfo \'{}\'',out=cp.execFileSync('/usr/bin/script',['-q','-c',command,'/dev/null'],{timeout:7000}).toString();return JSON.parse(out.slice(out.indexOf('{'),out.lastIndexOf('}')+1)).appId;}
+(async function(){var before,mode,report={},SourceApi=require(BASE+'/source-api.js').SourceApi,source=new SourceApi(device,{cert:fs.readFileSync(BASE+'/speaker-client-cert.pem'),key:fs.readFileSync(BASE+'/speaker-client-key.pem'),pin:cfg.sourceTlsPin});try{
+ await device.connect();before=await device.status();check(before.inputCode===43,'Run from Optical');mode=(await api('status')).enabled;if(!mode){await key('toggle');await wait(600);}await device.setVolume(0);await wait(2500);var fg=foreground();
+ inject(400,1500);await until(async function(){return (await api('status')).pickerOpen;});report.yellowOpens=true;
+ inject(108);await wait(400);check((await device.status()).inputCode===43,'Browsing changed the applied source');report.browsingKeepsOptical=true;
+ inject(28);await until(async function(){return !(await api('status')).pickerOpen;});check((await source.status()).mode===0,'OK did not apply Wi-Fi');report.okSwitchesAndCloses=true;
+ inject(400,1500);await until(async function(){return (await api('status')).pickerOpen;});inject(103);await wait(300);inject(28);await until(async function(){return !(await api('status')).pickerOpen;});check((await device.status()).inputCode===43,'Return to Optical failed');report.opticalReturn=true;
+ report.foregroundPreserved=fg===foreground();check(report.foregroundPreserved,'Picker changed foreground app');
+ }catch(e){report.error=e.message;process.exitCode=1;}finally{try{await key('source-close');if(before){await source.select('optical');await device.setVolume(before.volume);report.restored=(await device.status()).volume===before.volume;}if(typeof mode==='boolean'&&(await api('status')).enabled!==mode)await key('toggle');}catch(e){report.restoreError=e.message;process.exitCode=1;}fs.writeFileSync(BASE+'/automated-picker.json',JSON.stringify(report),{mode:384});console.log(JSON.stringify(report));}})();

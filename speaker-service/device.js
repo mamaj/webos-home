@@ -1,6 +1,6 @@
 // Fixed-purpose, identity-checked local UPnP client. Compatible with C1 Node 8.
 'use strict';
-var http=require('http'),dgram=require('dgram'),URL=require('url').URL;
+var inputs=require('./inputs.js'),http=require('http'),dgram=require('dgram'),URL=require('url').URL;
 function lan(host){if(!/^\d+\.\d+\.\d+\.\d+$/.test(host))return false;var p=host.split('.').map(Number);return p.every(function(n){return n>=0&&n<=255;})&&(p[0]===10||p[0]===192&&p[1]===168||p[0]===172&&p[1]>=16&&p[1]<=31);}
 function field(xml,name){var m=new RegExp('<(?:[A-Za-z0-9_]+:)?'+name+'(?:\\s[^>]*)?>([\\s\\S]*?)</(?:[A-Za-z0-9_]+:)?'+name+'>').exec(xml);return m?m[1].trim():null;}
 function request(host,port,route,method,body,headers){return new Promise(function(resolve,reject){
@@ -32,7 +32,7 @@ Device.prototype.status=async function(){
  var info=await this.soap('AVTransport','GetInfoEx'),mute=await this.soap('RenderingControl','GetMute');
  if(field(info,'CurrentVolume')===null)throw Error('Missing volume');
  var volume=Number(field(info,'CurrentVolume')),muted=field(mute,'CurrentMute'),mode=Number(field(info,'PlayType'));
- if(!Number.isInteger(volume)||volume<0||volume>100||['0','1'].indexOf(muted)<0)throw Error('Invalid speaker status');return {volume:volume,mute:muted==='1',input:mode===43?'Optical':'Speaker',inputCode:mode};
+ if(!Number.isInteger(volume)||volume<0||volume>100||['0','1'].indexOf(muted)<0)throw Error('Invalid speaker status');var input=inputs.filter(function(x){return x.modes.indexOf(mode)>=0;})[0];return {volume:volume,mute:muted==='1',input:input?input.label:'Speaker',inputId:input?input.id:null,inputCode:mode};
 };
 Device.prototype.setVolume=async function(n){if(!Number.isInteger(n)||n<0||n>100)throw Error('Invalid volume');await this.verify(this.host,this.port);await this.soap('RenderingControl','SetVolume',{DesiredVolume:n});};
 Device.prototype.setMute=async function(value){if(typeof value!=='boolean')throw Error('Invalid mute');await this.verify(this.host,this.port);await this.soap('RenderingControl','SetMute',{DesiredMute:value?1:0});};

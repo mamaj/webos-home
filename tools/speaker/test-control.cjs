@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{Control}=require('../../speaker-service/control.js'),{field,lan,Device}=require('../../speaker-service/device.js');
 const sleep=n=>new Promise(r=>setTimeout(r,n));
 (async()=>{
- let time=10000,calls=[];const context={Qt:{Key_VolumeUp:1,Key_VolumeDown:2,Key_VolumeMute:3},KeyPolicy:{Accepted:1,NextPolicy:2},Date:{now:()=>time},lunaCall:{send:(...a)=>calls.push(a)}};vm.createContext(context);vm.runInContext(fs.readFileSync(require('path').resolve(__dirname,'../../speaker-service/key-filter.js'),'utf8'),context);
+ let time=10000,calls=[];const context={Qt:{Key_VolumeUp:1,Key_VolumeDown:2,Key_VolumeMute:3,Key_Up:10,Key_Down:11,Key_Left:12,Key_Right:13,Key_Return:14,Key_Enter:15,Key_Escape:16,Key_Super_L:17,Key_Menu:18},WebOS:{Key_webOS_Yellow:100,Key_webOS_Back:101},KeyPolicy:{Accepted:1,NextPolicy:2},Date:{now:()=>time},lunaCall:{send:(...a)=>calls.push(a)}};vm.createContext(context);vm.runInContext(fs.readFileSync(require('path').resolve(__dirname,'../../speaker-service/key-filter.js'),'utf8'),context);
  context.personalSpeakerSend=(key,pressed)=>calls.push({key,pressed});
  function state(enabled,available=true){Object.assign(context.personalSpeaker,{enabled,available,seen:time});}
  state(false);assert.equal(context.personalSpeakerKey(1,true,false),2);assert.equal(context.personalSpeakerKey(3,true,false),1);time+=100;assert.equal(context.personalSpeakerKey(3,false,false),2);assert.equal(calls.length,0);
@@ -9,6 +9,7 @@ const sleep=n=>new Promise(r=>setTimeout(r,n));
  state(true);context.personalSpeakerKey(1,true,false);context.personalSpeakerKey(1,false,false);assert.deepEqual(calls.map(a=>a.pressed),[true,false]);calls=[];
  context.personalSpeakerKey(3,true,false);time+=100;context.personalSpeakerKey(3,false,false);assert.equal(calls.pop().key,'mute');
  time+=3000;assert.equal(context.personalSpeakerKey(1,true,false),2);state(true,false);assert.equal(context.personalSpeakerKey(1,true,false),2);
+ state(true);context.personalSpeakerKey(100,true,false);time+=1500;state(true);context.personalSpeakerKey(100,false,false);assert.equal(calls.pop().key,'source-open');context.personalSpeaker.pickerOpen=true;context.personalSpeakerKey(11,true,false);assert.equal(calls.pop().key,'source-next');context.personalSpeaker.pickerOpen=false;assert.equal(context.personalSpeakerKey(11,false,false),1);assert.equal(context.personalSpeakerKey(11,true,false),2);calls=[];
  let actual=18,muted=false,changes=[],persisted=[],available=true;const device={verified:true,status:async()=>{if(!available)throw Error('offline');return {volume:actual,mute:muted,input:'Optical'};},setVolume:async n=>{actual=n;changes.push(n);},setMute:async v=>{muted=v;}};
  const c=new Control({device,enabled:true,persist:v=>persisted.push(v)});await c.refresh();c.key('up',true);c.key('up',false);await sleep(15);assert.equal(actual,23);
  c.key('down',true);await sleep(560);c.key('down',false);assert.ok(actual<=13);let stopped=actual;await sleep(200);assert.equal(actual,stopped);
